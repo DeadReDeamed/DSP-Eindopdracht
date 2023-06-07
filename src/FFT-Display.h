@@ -2,10 +2,11 @@
 #include <arduinoFFT.h>
 #include <TFT_eSPI.h>
 #include <SPI.h>
+#include "DIY-FFT.h"
 
-#define SAMPLES 1024
+#define SAMPLES 256
 #define SAMPLING_FREQ 40000
-#define AMPLITUDE 300
+#define AMPLITUDE 250
 #define AUDIO_IN_PIN 39
 #define MAX_MILLIAMPS 2000
 #define NUM_BANDS 40
@@ -24,8 +25,12 @@ public:
     double vImag[SAMPLES];
     unsigned long newTime;
     arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ);
+    DIY_FFT fft;
     TFT_eSPI lcd = TFT_eSPI();
     void displayUpdate();
     void getSamples();
     void Visualizer();
+    
+    int deltaTime = 0;
+    int lastTime = 0;
 };

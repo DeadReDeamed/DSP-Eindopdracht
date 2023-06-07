@@ -1,12 +1,15 @@
 #include "FFT-Display.h"
+#include <string>
+
+#define FFTLIB true
 
 void Analyser::Visualizer()
 {
   //   //Collect Samples
+  lastTime = millis();
   getSamples();
 
   // Update Display
-  lcd.fillScreen(0x0000);
   displayUpdate();
 }
 
@@ -27,16 +30,19 @@ void Analyser::getSamples()
     }
   }
 
+  if(FFTLIB){
   // Compute FFT
-  FFT.DCRemoval();
-  FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-  FFT.Compute(FFT_FORWARD);
-  FFT.ComplexToMagnitude();
+    FFT.DCRemoval();
+    FFT.Windowing(FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+    FFT.Compute(FFT_FORWARD);
+    FFT.ComplexToMagnitude();
+  } else {
+    fft.calculateFFT(vReal, SAMPLES, SAMPLING_FREQ);
+  }
 
   for (int i = 2; i < (SAMPLES / 2); i++)
-  { // Don't use sample 0 and only first SAMPLES/2 are usable. Each array element represents a frequency bin and its value the amplitude.
     if (vReal[i] > NOISE)
-    { // Add a crude noise filter
+    {
       if (i <= 2)
         bandValues[0] += (int)vReal[i];
       if (i > 2 && i <= 2)
@@ -117,9 +123,7 @@ void Analyser::getSamples()
         bandValues[38] += (int)vReal[i];
       if (i > 289)
         bandValues[39] += (int)vReal[i];
-    }
   }
-  
 }
 
 void Analyser::displayUpdate()
@@ -139,6 +143,9 @@ void Analyser::displayUpdate()
     {
       peak[band] = min(TOP, barHeight);
     }
+    lcd.fillRect(band*4, 0, 4, TOP, 0x0000);
     lcd.fillRect(band*4, 0, 4, barHeight, COLOR);
   }
+  deltaTime = millis() - lastTime;
+  lcd.drawString(String(deltaTime), 0, 110);
 }

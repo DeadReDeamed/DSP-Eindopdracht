@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "FFT-Display.h"
 
 Analyser ana;
